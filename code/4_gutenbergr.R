@@ -2,11 +2,11 @@
 #Originally compiled for the Digital Humanities workshop in the Summer School for Baltic Enlightenment and its inheritance (Sommerschule "Die baltische Aufklärung und ihr Erbe"), 05-09-2017.
 
 
-#First we check if the packages are installed, and install if needed.
+#This command installs the libraries needed to run the code, if you don't have them.
 lapply(c("tidyverse", "tidytext", "gutenbergr", "scales"),
        function(x) if(!is.element(x, installed.packages())) install.packages(x, dependencies = T))
 
-#Then we read the packages into R environment.
+#Libraries need to be opened each time you open R. These commands open the libraries/packages in the current environment.
 library(tidyverse)
 library(tidytext)
 library(scales)
@@ -86,7 +86,7 @@ gutenberg_metadata %>%
 #hgwells_texts <- gutenberg_download(hgwells_index$gutenberg_id[1:15], meta_fields = "title")
 #jverne_texts <- gutenberg_download(jverne_index$gutenberg_id[1:15], meta_fields = "title")
 #lazy option with no internet
-load("data/wells_verne.RData")
+load("data/offline_gutenberg/wells_verne.RData")
 
 #count (number of lines per book)
 hgwells_texts %>%
@@ -442,9 +442,9 @@ crusoe_texts %>%
 #detective_texts <- gutenberg_download(detective_index$gutenberg_id[1:19], meta_fields = "title")
 
 #If you can't connect to internet with the gutenberg_download function, you can simply open the example datasets
-load("data/austen_bronte_shelley.RData")
-load("data/tarzan_crusoe.RData")
-#load("data/wells_verne.RData")
+load("data/offline_gutenberg/austen_bronte_shelley.RData")
+load("data/offline_gutenberg/tarzan_crusoe.RData")
+#load("data/offline_gutenberg/wells_verne.RData")
 
 
 
@@ -537,23 +537,6 @@ c19_authors %>%
 c19_authors %>%
   filter(gender=="female")
 
-
-############################
-#####Extra 2
-###########################
-
-#Read your own files
-#Here it reads the files from the corpus included in the dataset
-library(purrr)
-filelist <- list.files("data/corpus/",full.names=T)
-texts <- map_df(filelist, ~ data_frame(txt = read_lines(.x)) %>%
-                  mutate(filename = .x)) %>%
-  mutate(filename= gsub("data/corpus/","",filename))
-
-
-#and then just use the same tricks as above
-texts %>%
-  count(filename)
 
 
 

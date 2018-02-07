@@ -2,22 +2,28 @@
 #
 #from https://github.com/rstudio/webinars/blob/master/46-tidyverse-visualisation-and-manipulation-basics/ (RStudio webinar by garretgman, CC)
 #and http://rpubs.com/aelhabr/tidyverse-basics
+#
+# The purpose of this file is to introduce to the basic tidyverse commands with the help of simple manipulations of a simple dataframe.
+#
+#The manipulations are done with the Gapminder basic dataset
+#
+#For an analysis with the basic variables see here: 
+#https://www.gapminder.org/answers/how-does-income-relate-to-life-expectancy/
+#There are more variables in the dataset that are not handled in the file
 
 
-
+#This command installs the libraries needed to run the code, if you don't have them.
 lapply(c("gapminder","tidyverse"), 
        function(x) if(!is.element(x, installed.packages())) install.packages(x, dependencies = T))
 
-
+#Libraries need to be opened each time you open R. These commands open the libraries/packages in the current environment.
 library(gapminder)
 library(tidyverse)
 
 
-#The Gapminder dataset
-#https://www.gapminder.org/answers/how-does-income-relate-to-life-expectancy/
 
 
-
+#A somewhat similar plot from our data. This may look complicated at first but should become more clear as you go through the code and return to it later.
 gapminder %>%
   group_by(country) %>%
   filter(year==max(year)) %>%
@@ -41,27 +47,32 @@ gapminder %>%
 #join() joining separate dataframes
 #mutate() create new variables
 
-gapminder
+#We can make a variable and view it, by clicking on it on the right,
+#or writing view(var)
+var <- gapminder
 
-
-gapminder %>%
+#Only finland
+finland <- gapminder %>%
   filter(country=="Finland")
 
-
+#Finland's year and population only.
 gapminder %>%
   filter(country=="Finland") %>%
   select(year,pop)
   
 
+#Population sizes ordered from highest to lowest in 1952
 gapminder %>% 
-  filter(year == 2007) %>% 
+  filter(year == 1952) %>% 
   arrange(desc(pop))
 
+#Lowest life expectancies in 2007
 gapminder %>% 
   filter(year == 2007) %>% 
-  arrange(desc(lifeExp)) %>% 
+  arrange(lifeExp) %>% 
   select(country, lifeExp)
 
+#Make a new variable - gdp
 gapminder %>% 
   mutate(gdp = pop * gdpPercap)
 
@@ -70,12 +81,14 @@ gapminder %>%
 #data %>%
 #ggplot(mapping = aes(<MAPPINGS>)) +
 #  <GEOM_FUNCTION>()
+#
+#look for more info on ggplot2 to understand better
 
-
+#A simple plot similar to  our graph, but for one country in time
 gapminder %>%
   filter(country=="Finland") %>%
-  ggplot(aes(x=year,y=pop))+
-  geom_line()+
+  ggplot(aes(x=lifeExp,y=gdpPercap))+
+  geom_point()+
   theme_minimal()
 
 gapminder %>%
@@ -89,33 +102,30 @@ gapminder %>%
 
 gapminder
 
-
-gapminder %>% 
-  mutate(gdp = pop * gdpPercap)
-
+#The biggest gdp over the entire dataset
 gapminder %>% 
   mutate(gdp = pop * gdpPercap) %>% 
   summarise(max_gdp = max(gdp))
 
-
+#The biggest gdp per continent
 gapminder %>% 
   mutate(gdp = pop * gdpPercap) %>% 
-  group_by(country) %>% 
+  group_by(continent) %>% 
   summarise(max_gdp = max(gdp))
 
-
+#The biggest gdp per capita per country
 gapminder %>% 
   group_by(country) %>% 
   summarise(max_gdpPercap = max(gdpPercap)) %>% 
   arrange(desc(max_gdpPercap))
 
-
+#mean gdp per capita across continents
 gapminder %>% 
   group_by(continent) %>% 
   summarise(mean_gdpPercap = mean(gdpPercap)) %>% 
   arrange(desc(mean_gdpPercap))
 
-
+#Trends over time for continent
 gapminder %>% 
   group_by(continent,year) %>% 
   summarise(mean_gdpPercap = mean(gdpPercap)) %>% 
@@ -128,12 +138,7 @@ gapminder %>%
 
 
 #Trends in time
-
-gapminder %>% 
-  mutate(gdp = pop * gdpPercap) %>% 
-  summarise(first_gdp = first(gdp), last_gdp = last(gdp))
-
-
+#First and last
 gapminder %>% 
   mutate(gdp = pop * gdpPercap) %>% 
   summarise(first_gdp = first(gdp), last_gdp = last(gdp))
@@ -143,11 +148,13 @@ gapminder %>%
   summarise(first_gdp = first(gdp), last_gdp = last(gdp))
 
 
-
+#comparing first and last
 gapminder %>% 
   mutate(gdp = pop * gdpPercap) %>% 
   group_by(country) %>% 
   summarise(gdp1952 = first(gdp), gdp2007 = last(gdp))
+
+#Percentage increase per year
 gapminder %>% 
   mutate(gdp = pop * gdpPercap) %>% 
   group_by(country) %>% 
@@ -157,7 +164,7 @@ gapminder %>%
   select(country, cagr)
 
 
-
+#gdp per country in 1952
 gapminder
 gapminder %>% 
   filter(year == 1952) %>% 
@@ -167,7 +174,7 @@ gapminder %>%
 
 
 
-
+#Top 10 countries by gdp in 1952 (this variable is needed later)
 top_10 <-
   gapminder %>% 
   filter(year == 1952) %>% 
@@ -177,6 +184,7 @@ top_10 <-
   pull(country) #makes it into a simple sequence instead of datframe
 
 
+#Temporal trends for top 10 countries (notice the %in%)
 gapminder
 gapminder %>% 
   filter(country %in% top_10) %>% 
@@ -186,11 +194,12 @@ gapminder %>%
 
 
 
-
+#Gdps for top 10
 gapminder %>% 
   filter(country %in% top_10) %>% 
   mutate(gdp = pop * gdpPercap)
 
+#Gdps scaled to 1952, e.g. how many times bigger gdp does China have in 2007
 gapminder %>% 
   filter(country %in% top_10) %>% 
   mutate(gdp = pop * gdpPercap) %>% 
@@ -202,6 +211,7 @@ gapminder %>%
 
 
 
+#The growth rates of top 10 countries
 gapminder %>% 
   filter(country %in% top_10) %>% 
   mutate(gdp = pop * gdpPercap) %>% 
@@ -210,6 +220,7 @@ gapminder %>%
   mutate(cagr = ((end/start) ^ (1 / 55) - 1) * 100) %>% 
   arrange(desc(cagr)) %>% 
   select(country, cagr)
+
 gapminder %>% 
   filter(country %in% top_10) %>% 
   mutate(gdp = pop * gdpPercap) %>% 
