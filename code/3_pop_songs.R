@@ -564,6 +564,6 @@ plot2 <-
 #  ggsave(filename="plots/trend_example2.pdf", width = 5, height = 5)
 
 
-#Positive emotions go up, negative emotions go down
+#Positive emotions go down, negative emotions go up
 #But the scale is proportion of all of vocabulary, and it is around 4-5% for positive vocabulary and 2-3% for negative vocabulary for the entire duration
 gridExtra::grid.arrange(plot1,plot2,ncol=2)
